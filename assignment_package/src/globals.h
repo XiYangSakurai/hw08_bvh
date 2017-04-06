@@ -160,3 +160,23 @@ inline void CoordinateSystem(const Vector3f& v1, Vector3f* v2, Vector3f* v3)
             *v2 = Vector3f(0, v1.z, -v1.y) / std::sqrt(v1.y * v1.y + v1.z * v1.z);
         *v3 = glm::cross(v1, *v2);
 }
+inline Float Lerp(Float t, Float v1, Float v2) {
+return (1 - t) * v1 + t * v2;
+}
+template <typename Predicate> int FindInterval(int size,
+const Predicate &pred) {
+int first = 0, len = size;
+while (len > 0) {
+int half = len >> 1, middle = first + half;
+//Bisect range based on value of pred at middle
+if (pred(middle)) {
+first = middle + 1;
+len -= half + 1;
+} else
+len = half;
+}
+return glm::clamp(first - 1, 0, size - 2);
+}
+inline int Log2Int(uint32_t v) {
+return 31 - __builtin_clz(v);
+}

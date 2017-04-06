@@ -113,3 +113,4 @@ public:
 Bounds3f Union(const Bounds3f& b1, const Bounds3f& b2);
 Bounds3f Union(const Bounds3f& b1, const Point3f& p);
 Bounds3f Union(const Bounds3f& b1, const glm::vec4& p);
+bool InsideBox(const Bounds3f& b1, const Point3f& p);

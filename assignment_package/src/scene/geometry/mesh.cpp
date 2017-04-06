@@ -6,6 +6,20 @@
 Bounds3f Triangle::WorldBound() const
 {
     //TODO
+//    Point3f min=points[0], max=points[0];
+//    for(int i=0;i<3;i++)
+//    {
+//        min[0]=std::min(min[0],points[i][0]);
+//        min[1]=std::min(min[1],points[i][1]);
+//        min[2]=std::min(min[2],points[i][2]);
+//        max[0]=std::max(max[0],points[i][0]);
+//        max[1]=std::max(max[1],points[i][1]);
+//        max[2]=std::max(max[2],points[i][2]);
+//    }
+//    Bounds3f local_bounds(min,max);
+    Bounds3f local_bounds=Union(Union(Bounds3f(points[0]),points[1]),points[2]);
+    return local_bounds;
+   //return local_bounds.Apply(transform);
 }
 
 float Triangle::Area() const
@@ -98,13 +112,48 @@ void Triangle::ComputeTriangleTBN(const Point3f &P, Normal3f *nor, Vector3f *tan
 {
     *nor = GetNormal(P);
     //TODO: Compute tangent and bitangent based on UV coordinates.
+//        Point2f triUV=GetUVCoordinates(P);
+//        Vector3f pos1=P-points[1];
+//        Vector3f pos2=P-points[2];
+//        Vector2f uv1=triUV-uvs[1];
+//        Vector2f uv2=triUV-uvs[2];
+//        Vector3f tangent=(uv2.y*pos1-uv1.y*pos2)/(uv2.y*uv1.x-uv1.y*uv2.x);
+//        Vector3f bitangent=(pos2-uv2.x*tangent)/uv2.y;
+//    Vector2f uv1=uvs[1];
+//    Vector2f uv2=uvs[2];
+//    *tan=(points[1]*uv2[1]-points[2]*uv1[1])/(uv2[1]*uv1[0]-uv2[0]*uv1[1]);
+//    *bit=glm::normalize((points[2]-uv2[0]*(*tan))/uv2[1]);
+        Vector3f tangent;
+        Vector3f bitangent;
+        CoordinateSystem(*nor,&tangent,&bitangent);
+        *tan=glm::normalize(tangent);
+        *bit=glm::normalize(bitangent);
+
 }
 
 
 Intersection Triangle::Sample(const Point2f &xi, Float *pdf) const
 {
     //TODO for extra credit
-    return Intersection();
+    //return Intersection();
+    Float su0 = std::sqrt(xi[0]);
+        Point2f b(1 - su0, xi[1] * su0);
+            Intersection it;
+            it.point = b[0] * points[0] + b[1] * points[1] + (1 - b[0] - b[1]) * points[2];
+            // Compute surface normal for sampled point on triangle
+            it.normalGeometric = glm::normalize(Normal3f(glm::cross(points[1] - points[0], points[2] - points[0])));
+            // Ensure correct orientation of the geometric normal; follow the same
+            // approach as was used in Triangle::Intersect().
+            if (planeNormal!=Normal3f(0.0f)) {
+                Normal3f ns(b[0] * normals[0] + b[1] * normals[1] +
+                            (1 - b[0] - b[1]) *normals[2]);
+                it.normalGeometric=(glm::dot(it.normalGeometric, ns) < 0.f) ? -it.normalGeometric : it.normalGeometric;
+            } /*else if (reverseOrientation ^ transformSwapsHandedness)
+                it.n *= -1;*/
+
+
+            *pdf = 1 / Area();
+            return it;
 }
 
 

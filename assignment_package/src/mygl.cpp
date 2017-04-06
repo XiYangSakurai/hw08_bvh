@@ -345,7 +345,9 @@ void MyGL::RenderScene()
 
     if(makeBVH && !scene.bvh)
     {
+        bvhTimer.restart();
         scene.bvh = new BVHAccel(scene.primitives.toVector().toStdVector(), maxBVHPrims);
+        std::cout << "Milliseconds to construct BVH: " << bvhTimer.elapsed() << std::endl;
     }
     else if(!makeBVH && scene.bvh)
     {

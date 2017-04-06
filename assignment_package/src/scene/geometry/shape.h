@@ -43,4 +43,5 @@ public:
     float Pdf(const Intersection &ref, const Vector3f &wi) const;
 
     virtual Bounds3f WorldBound() const = 0;
+    static pcg32 colorRNG;
 };

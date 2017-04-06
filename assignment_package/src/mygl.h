@@ -56,6 +56,8 @@ private:
 
     QTime renderTimer;
 
+    QTime bvhTimer;
+
     bool makeBVH;
     int maxBVHPrims;
 
